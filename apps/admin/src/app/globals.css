@@ -3,8 +3,27 @@
 @tailwind utilities;
 
 @layer base {
+  /* Google Font CSS Variables - using actual font names */
+  :root {
+    --font-inter: 'Inter', system-ui, sans-serif;
+    --font-roboto: 'Roboto', system-ui, sans-serif;
+    --font-open-sans: 'Open Sans', system-ui, sans-serif;
+    --font-lato: 'Lato', system-ui, sans-serif;
+    --font-poppins: 'Poppins', system-ui, sans-serif;
+    --font-montserrat: 'Montserrat', system-ui, sans-serif;
+    --font-nunito: 'Nunito', system-ui, sans-serif;
+  }
+
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: var(--font-family-sans);
+  }
+  
+  body {
+    font-family: var(--font-family-sans);
+  }
+  
+  * {
+    font-family: inherit;
   }
 }
 

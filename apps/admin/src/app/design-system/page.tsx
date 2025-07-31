@@ -140,16 +140,68 @@ export default function DesignSystemPage() {
   };
 
   const handleTypographyChange = (category: string, token: string, value: string) => {
+    if (!config) return;
+    
+    // Update local state immediately
+    setConfig({
+      ...config,
+      typography: {
+        ...config.typography,
+        [category]: {
+          ...config.typography[category],
+          [token]: value,
+        },
+      },
+    });
+    
+    // Update the design system service immediately
     designSystemService.updateTypography(category as any, token, value);
   };
 
   const handleFontFamilyChange = (family: string, fonts: string[]) => {
     if (!config) return;
-    designSystemService.updateTypography('fontFamily', family, fonts);
+    const updatedConfig = {
+      ...config,
+      typography: {
+        ...config.typography,
+        fontFamily: {
+          ...config.typography.fontFamily,
+          [family]: fonts,
+        },
+      },
+    };
+    setConfig(updatedConfig);
+    
+    // Update the design system service immediately
+    designSystemService.updateConfig(updatedConfig.id, updatedConfig);
+    
+    // Apply fonts immediately for dynamic preview
+    const root = document.documentElement;
+    if (family === 'sans') {
+      const fontStack = fonts.join(', ');
+      root.style.setProperty('--font-family-sans', fontStack);
+    } else if (family === 'mono') {
+      const fontStack = fonts.join(', ');
+      root.style.setProperty('--font-family-mono', fontStack);
+    }
   };
 
   const handleLineHeightChange = (token: string, value: string) => {
     if (!config) return;
+    
+    // Update local state immediately
+    setConfig({
+      ...config,
+      typography: {
+        ...config.typography,
+        lineHeight: {
+          ...config.typography.lineHeight,
+          [token]: value,
+        },
+      },
+    });
+    
+    // Update the design system service immediately
     designSystemService.updateTypography('lineHeight', token, value);
   };
 
@@ -197,6 +249,13 @@ export default function DesignSystemPage() {
     setIsSaving(true);
     
     try {
+      // First update the design system service with current local state
+      if (config.typography.fontFamily) {
+        Object.entries(config.typography.fontFamily).forEach(([family, fonts]) => {
+          designSystemService.updateTypography('fontFamily', family, fonts as string[]);
+        });
+      }
+      
       const result = await designSystemService.updateConfig(config.id, {
         name: config.name,
         colors: config.colors,
@@ -265,74 +324,26 @@ export default function DesignSystemPage() {
 
   // Font family options
   const fontFamilyOptions = [
-    {
-      name: 'Inter',
-      value: ['Inter', 'system-ui', 'sans-serif'],
-      description: 'Modern, clean sans-serif font',
-    },
-    {
-      name: 'Roboto',
-      value: ['Roboto', 'system-ui', 'sans-serif'],
-      description: 'Google\'s system font',
-    },
-    {
-      name: 'Open Sans',
-      value: ['Open Sans', 'system-ui', 'sans-serif'],
-      description: 'Humanist sans-serif font',
-    },
-    {
-      name: 'Lato',
-      value: ['Lato', 'system-ui', 'sans-serif'],
-      description: 'Balanced sans-serif font',
-    },
-    {
-      name: 'Poppins',
-      value: ['Poppins', 'system-ui', 'sans-serif'],
-      description: 'Geometric sans-serif font',
-    },
-    {
-      name: 'Montserrat',
-      value: ['Montserrat', 'system-ui', 'sans-serif'],
-      description: 'Elegant sans-serif font',
-    },
-    {
-      name: 'Source Sans Pro',
-      value: ['Source Sans Pro', 'system-ui', 'sans-serif'],
-      description: 'Adobe\'s clean sans-serif',
-    },
-    {
-      name: 'Nunito',
-      value: ['Nunito', 'system-ui', 'sans-serif'],
-      description: 'Rounded sans-serif font',
-    },
+    { name: 'Inter', value: ['Inter', 'system-ui', 'sans-serif'], description: 'Modern, clean sans-serif font' },
+    { name: 'Roboto', value: ['Roboto', 'system-ui', 'sans-serif'], description: 'Google\'s system font' },
+    { name: 'Open Sans', value: ['Open Sans', 'system-ui', 'sans-serif'], description: 'Humanist sans-serif font' },
+    { name: 'Lato', value: ['Lato', 'system-ui', 'sans-serif'], description: 'Balanced sans-serif font' },
+    { name: 'Poppins', value: ['Poppins', 'system-ui', 'sans-serif'], description: 'Geometric sans-serif font' },
+    { name: 'Montserrat', value: ['Montserrat', 'system-ui', 'sans-serif'], description: 'Modern geometric font' },
+    { name: 'Nunito', value: ['Nunito', 'system-ui', 'sans-serif'], description: 'Friendly sans-serif font' },
+    { name: 'Comic Sans MS', value: ['Comic Sans MS', 'cursive'], description: 'Playful display font' },
+    { name: 'Arial', value: ['Arial', 'sans-serif'], description: 'Classic sans-serif font' },
+    { name: 'Times New Roman', value: ['Times New Roman', 'serif'], description: 'Classic serif font' },
+    { name: 'Georgia', value: ['Georgia', 'serif'], description: 'Elegant serif font' },
+    { name: 'Verdana', value: ['Verdana', 'sans-serif'], description: 'Clean sans-serif font' },
   ];
 
   const monoFontOptions = [
-    {
-      name: 'JetBrains Mono',
-      value: ['JetBrains Mono', 'monospace'],
-      description: 'Programming font with ligatures',
-    },
-    {
-      name: 'Fira Code',
-      value: ['Fira Code', 'monospace'],
-      description: 'Mozilla\'s programming font',
-    },
-    {
-      name: 'Source Code Pro',
-      value: ['Source Code Pro', 'monospace'],
-      description: 'Adobe\'s programming font',
-    },
-    {
-      name: 'Cascadia Code',
-      value: ['Cascadia Code', 'monospace'],
-      description: 'Microsoft\'s programming font',
-    },
-    {
-      name: 'Monaco',
-      value: ['Monaco', 'monospace'],
-      description: 'Apple\'s programming font',
-    },
+    { name: 'JetBrains Mono', value: ['JetBrains Mono', 'monospace'], description: 'Programming font with ligatures' },
+    { name: 'Fira Code', value: ['Fira Code', 'monospace'], description: 'Mozilla\'s programming font' },
+    { name: 'Source Code Pro', value: ['Source Code Pro', 'monospace'], description: 'Adobe\'s programming font' },
+    { name: 'Cascadia Code', value: ['Cascadia Code', 'monospace'], description: 'Microsoft\'s programming font' },
+    { name: 'Monaco', value: ['Monaco', 'monospace'], description: 'Apple\'s programming font' },
   ];
 
   return (
@@ -463,9 +474,9 @@ export default function DesignSystemPage() {
           </CardHeader>
           <CardBody>
             {currentPalette && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {currentPalette.colors.map((color) => (
-                  <div key={color.name} className="space-y-3">
+                  <div key={color.name} className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
@@ -498,9 +509,9 @@ export default function DesignSystemPage() {
               <p className="text-sm text-body">Control how colors are used throughout the interface</p>
           </CardHeader>
           <CardBody>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Typography Colors */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <h4 className="font-medium text-heading">Typography Colors</h4>
                 <div className="space-y-3">
                   <div className="space-y-2">
@@ -551,9 +562,9 @@ export default function DesignSystemPage() {
               </div>
 
               {/* Background Layers */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <h4 className="font-medium text-heading">Background Layers</h4>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-body flex-1">Main Background</span>
@@ -670,18 +681,20 @@ export default function DesignSystemPage() {
                 <p className="text-sm text-body">Select and customize font families for your design system</p>
               </CardHeader>
               <CardBody>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Sans-serif Font Selection */}
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <h4 className="font-medium text-heading">Sans-serif Font</h4>
-                    <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
                       {fontFamilyOptions.map((font) => {
                         const currentFonts = config.typography.fontFamily?.sans || ['Inter', 'system-ui', 'sans-serif'];
+                        // Compare the first font in the array (the primary font)
                         const isSelected = currentFonts[0] === font.value[0];
+                        
                         return (
                           <div
                             key={font.name}
-                            className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                            className={`p-2 rounded border cursor-pointer transition-colors ${
                               isSelected
                                 ? 'border-primary bg-primary/5'
                                 : 'border-medium hover:border-primary/50'
@@ -689,15 +702,15 @@ export default function DesignSystemPage() {
                             onClick={() => handleFontFamilyChange('sans', font.value)}
                           >
                             <div className="flex items-center justify-between">
-                              <div>
-                                <div className="font-medium text-heading" style={{ fontFamily: font.value.join(', ') }}>
+                              <div className="flex-1">
+                                <div className="font-medium text-heading text-sm" style={{ fontFamily: font.value.join(', ') }}>
                                   {font.name}
                                 </div>
-                                <div className="text-sm text-body mt-1">{font.description}</div>
+                                <div className="text-xs text-body mt-0.5">{font.description}</div>
                               </div>
                               {isSelected && (
-                                <div className="text-primary">
-                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                                <div className="text-primary ml-2">
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                   </svg>
                                 </div>
@@ -710,16 +723,18 @@ export default function DesignSystemPage() {
                   </div>
 
                   {/* Monospace Font Selection */}
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <h4 className="font-medium text-heading">Monospace Font</h4>
-                    <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
                       {monoFontOptions.map((font) => {
-                        const currentFonts = config.typography.fontFamily?.mono || ['JetBrains Mono', 'monospace'];
+                        const currentFonts = config.typography.fontFamily?.mono || ['Monaco', 'monospace'];
+                        // Compare the first font in the array (the primary font)
                         const isSelected = currentFonts[0] === font.value[0];
+                        
                         return (
                           <div
                             key={font.name}
-                            className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                            className={`p-2 rounded border cursor-pointer transition-colors ${
                               isSelected
                                 ? 'border-primary bg-primary/5'
                                 : 'border-medium hover:border-primary/50'
@@ -727,15 +742,15 @@ export default function DesignSystemPage() {
                             onClick={() => handleFontFamilyChange('mono', font.value)}
                           >
                             <div className="flex items-center justify-between">
-                              <div>
-                                <div className="font-medium text-heading" style={{ fontFamily: font.value.join(', ') }}>
+                              <div className="flex-1">
+                                <div className="font-medium text-heading text-sm" style={{ fontFamily: font.value.join(', ') }}>
                                   {font.name}
                                 </div>
-                                <div className="text-sm text-body mt-1">{font.description}</div>
+                                <div className="text-xs text-body mt-0.5">{font.description}</div>
                               </div>
                               {isSelected && (
-                                <div className="text-primary">
-                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                                <div className="text-primary ml-2">
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                   </svg>
                                 </div>
@@ -750,14 +765,14 @@ export default function DesignSystemPage() {
               </CardBody>
             </Card>
 
-                        {/* Typography Management */}
+            {/* Typography Management */}
             <Card>
               <CardHeader>
                 <h3 className="text-lg font-semibold text-heading">Typography Settings</h3>
                 <p className="text-sm text-body">Customize font sizes, weights, and line heights</p>
               </CardHeader>
               <CardBody>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-4">
                     <h4 className="font-medium text-heading">Font Sizes</h4>
                     <div className="space-y-2">
@@ -885,9 +900,9 @@ export default function DesignSystemPage() {
                 <p className="text-sm text-body">See how your design system changes affect the interface</p>
               </CardHeader>
               <CardBody>
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <div>
-                    <h4 className="font-medium text-heading mb-3">Typography Preview</h4>
+                    <h4 className="font-medium text-heading mb-2">Typography Preview</h4>
                     <div className="space-y-2">
                       <h1 className="text-4xl font-bold" style={{ fontFamily: config.typography.fontFamily?.sans?.join(', ') }}>
                         Heading 1 - {config.typography.fontFamily?.sans?.[0] || 'Inter'}
@@ -908,8 +923,8 @@ export default function DesignSystemPage() {
                   </div>
                   
                   <div>
-                    <h4 className="font-medium text-heading mb-3">Component Preview</h4>
-                    <div className="space-y-4">
+                    <h4 className="font-medium text-heading mb-2">Component Preview</h4>
+                    <div className="space-y-3">
                       <div className="flex space-x-2">
                         <Button variant="primary">Primary Button</Button>
                         <Button variant="secondary">Secondary Button</Button>

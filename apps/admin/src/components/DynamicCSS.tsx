@@ -12,10 +12,10 @@ export function DynamicCSS() {
       const config = designSystemService.getConfig();
       const root = document.documentElement;
       
-              // Set default values if no config is available
-        if (!config) {
-          // Set default comprehensive color palette
-          const defaultColors = {
+      // Set default values if no config is available
+      if (!config) {
+        // Set default comprehensive color palette
+        const defaultColors = {
           // Brand Colors
           primary: '#4334B6',
           secondary: '#F6393D',
@@ -27,7 +27,7 @@ export function DynamicCSS() {
           medium: '#D1D5DB',
           dark: '#1F2937',
           darkest: '#111827',
-          muted: '#9CA3AF',
+          muted: '#6B7280',
           
           // System Colors
           success: '#10B981',
@@ -49,78 +49,126 @@ export function DynamicCSS() {
           'bg-main': '#FFFFFF',
           'bg-secondary': '#F9FAFB',
           'bg-tertiary': '#F3F4F6',
-          overlay: 'rgba(0,0,0,0.5)',
+          overlay: 'rgba(0, 0, 0, 0.5)',
           
-
+          // Button States
+          'btn-primary': '#4334B6',
+          'btn-primary-hover': '#3729A3',
+          'btn-secondary': '#F6393D',
+          'btn-disabled': '#D1D5DB',
+          'btn-text': '#FFFFFF',
           
           // Utility/Accent Colors
-          'accent-1': '#E0F2FE',
-          'accent-2': '#FFF7ED',
-          'accent-3': '#ECFDF5',
+          'accent-1': '#8B5CF6',
+          'accent-2': '#06B6D4',
+          'accent-3': '#F59E0B',
         };
 
+        // Apply default colors
         Object.entries(defaultColors).forEach(([colorName, colorValue]) => {
           root.style.setProperty(`--${colorName}`, colorValue);
         });
 
-        // Set default font families
+        // Set default font families - use CSS variables only
         root.style.setProperty('--font-family-sans', 'Inter, system-ui, sans-serif');
         root.style.setProperty('--font-family-mono', 'JetBrains Mono, monospace');
         
-        return;
-      }
-      
-      // Apply comprehensive color palette
-      Object.entries(config.colors).forEach(([colorName, colorValue]) => {
-        root.style.setProperty(`--${colorName}`, colorValue);
-      });
+        // Set default typography
+        const defaultTypography = {
+          fontSize: {
+            xs: '0.75rem',
+            sm: '0.875rem',
+            base: '1rem',
+            lg: '1.125rem',
+            xl: '1.25rem',
+            '2xl': '1.5rem',
+            '3xl': '1.875rem',
+            '4xl': '2.25rem',
+          },
+          fontWeight: {
+            light: '300',
+            normal: '400',
+            medium: '500',
+            semibold: '600',
+            bold: '700',
+          },
+          lineHeight: {
+            none: '1',
+            tight: '1.25',
+            normal: '1.5',
+            relaxed: '1.625',
+          },
+        };
 
-      // Apply typography
-      if (config.typography.fontFamily) {
-        Object.entries(config.typography.fontFamily).forEach(([family, fonts]) => {
-          const fontStack = Array.isArray(fonts) ? fonts.join(', ') : fonts;
-          root.style.setProperty(`--font-family-${family}`, fontStack);
-        });
-      }
-
-      if (config.typography.fontSize) {
-        Object.entries(config.typography.fontSize).forEach(([size, value]) => {
+        // Apply default typography
+        Object.entries(defaultTypography.fontSize).forEach(([size, value]) => {
           root.style.setProperty(`--font-size-${size}`, value);
         });
-      }
-
-      if (config.typography.fontWeight) {
-        Object.entries(config.typography.fontWeight).forEach(([weight, value]) => {
+        Object.entries(defaultTypography.fontWeight).forEach(([weight, value]) => {
           root.style.setProperty(`--font-weight-${weight}`, value);
         });
-      }
-
-      if (config.typography.lineHeight) {
-        Object.entries(config.typography.lineHeight).forEach(([height, value]) => {
+        Object.entries(defaultTypography.lineHeight).forEach(([height, value]) => {
           root.style.setProperty(`--line-height-${height}`, value);
         });
+
+        // Set default spacing
+        const defaultSpacing = {
+          '0': '0px',
+          '1': '0.25rem',
+          '2': '0.5rem',
+          '3': '0.75rem',
+          '4': '1rem',
+          '5': '1.25rem',
+          '6': '1.5rem',
+          '8': '2rem',
+          '10': '2.5rem',
+          '12': '3rem',
+          '16': '4rem',
+          '20': '5rem',
+          '24': '6rem',
+        };
+
+        Object.entries(defaultSpacing).forEach(([space, value]) => {
+          root.style.setProperty(`--spacing-${space}`, value);
+        });
+
+        // Set default border radius
+        const defaultBorderRadius = {
+          none: '0px',
+          sm: '0.125rem',
+          base: '0.25rem',
+          md: '0.375rem',
+          lg: '0.5rem',
+          xl: '0.75rem',
+          '2xl': '1rem',
+          full: '9999px',
+        };
+
+        Object.entries(defaultBorderRadius).forEach(([radius, value]) => {
+          root.style.setProperty(`--border-radius-${radius}`, value);
+        });
+
+        // Set default shadows
+        const defaultShadows = {
+          sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+          base: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+          md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+          lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+          xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+        };
+
+        Object.entries(defaultShadows).forEach(([shadow, value]) => {
+          root.style.setProperty(`--shadow-${shadow}`, value);
+        });
+      } else {
+        // Apply the loaded config
+        designSystemService.applyConfigToDOM(config);
       }
-
-      // Apply spacing
-      Object.entries(config.spacing).forEach(([space, value]) => {
-        root.style.setProperty(`--spacing-${space}`, value);
-      });
-
-      // Apply border radius
-      Object.entries(config.borderRadius).forEach(([radius, value]) => {
-        root.style.setProperty(`--border-radius-${radius}`, value);
-      });
-
-      // Apply shadows
-      Object.entries(config.shadows).forEach(([shadow, value]) => {
-        root.style.setProperty(`--shadow-${shadow}`, value);
-      });
     };
 
-    // Initial update
     updateCSSVariables();
 
-    // Subscribe to changes
+    // Subscribe to config changes
     const unsubscribe = designSystemService.subscribe(() => {
       updateCSSVariables();
     });
@@ -130,5 +178,5 @@ export function DynamicCSS() {
     };
   }, []);
 
-  return null; // This component doesn't render anything
+  return null;
 } 

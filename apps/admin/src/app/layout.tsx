@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { DynamicCSS } from '@/components/DynamicCSS';
-import { designSystemService } from '@/services/designSystemService';
+import { DynamicFontLoader } from '@/components/DynamicFontLoader';
 
 export const metadata: Metadata = {
   title: 'SaaS Admin Panel',
@@ -17,6 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <DynamicCSS />
+        <DynamicFontLoader />
         {children}
       </body>
     </html>

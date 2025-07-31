@@ -163,26 +163,34 @@ class DesignSystemService {
       });
     }
 
-    // Apply typography
+    // Apply typography - use CSS variables only
     if (config.typography.fontFamily) {
       Object.entries(config.typography.fontFamily).forEach(([family, fonts]) => {
         const fontStack = Array.isArray(fonts) ? fonts.join(', ') : fonts;
-        root.style.setProperty(`--font-family-${family}`, fontStack);
+        
+        if (family === 'sans') {
+          root.style.setProperty('--font-family-sans', fontStack);
+        } else if (family === 'mono') {
+          root.style.setProperty('--font-family-mono', fontStack);
+        }
       });
     }
 
+    // Apply font sizes
     if (config.typography.fontSize) {
       Object.entries(config.typography.fontSize).forEach(([size, value]) => {
         root.style.setProperty(`--font-size-${size}`, value);
       });
     }
 
+    // Apply font weights
     if (config.typography.fontWeight) {
       Object.entries(config.typography.fontWeight).forEach(([weight, value]) => {
         root.style.setProperty(`--font-weight-${weight}`, value);
       });
     }
 
+    // Apply line heights
     if (config.typography.lineHeight) {
       Object.entries(config.typography.lineHeight).forEach(([height, value]) => {
         root.style.setProperty(`--line-height-${height}`, value);
@@ -190,19 +198,25 @@ class DesignSystemService {
     }
 
     // Apply spacing
-    Object.entries(config.spacing).forEach(([space, value]) => {
-      root.style.setProperty(`--spacing-${space}`, value);
-    });
+    if (config.spacing) {
+      Object.entries(config.spacing).forEach(([token, value]) => {
+        root.style.setProperty(`--spacing-${token}`, value);
+      });
+    }
 
     // Apply border radius
-    Object.entries(config.borderRadius).forEach(([radius, value]) => {
-      root.style.setProperty(`--border-radius-${radius}`, value);
-    });
+    if (config.borderRadius) {
+      Object.entries(config.borderRadius).forEach(([token, value]) => {
+        root.style.setProperty(`--border-radius-${token}`, value);
+      });
+    }
 
     // Apply shadows
-    Object.entries(config.shadows).forEach(([shadow, value]) => {
-      root.style.setProperty(`--shadow-${shadow}`, value);
-    });
+    if (config.shadows) {
+      Object.entries(config.shadows).forEach(([token, value]) => {
+        root.style.setProperty(`--shadow-${token}`, value);
+      });
+    }
   }
 
   // Utility methods for updating specific tokens
@@ -218,7 +232,10 @@ class DesignSystemService {
   }
 
   updateTypography(category: 'fontSize' | 'fontWeight' | 'lineHeight' | 'fontFamily', token: string, value: string | string[]) {
-    if (this.config && this.config.typography[category]) {
+    if (this.config) {
+      if (!this.config.typography[category]) {
+        this.config.typography[category] = {};
+      }
       this.config.typography[category][token] = value;
       this.applyConfig(this.config);
       this.notifySubscribers();
@@ -266,6 +283,10 @@ class DesignSystemService {
 
   getOverrides(): Record<string, string> {
     return { ...this.overrides };
+  }
+
+  public applyConfigToDOM(config: DesignSystemConfig) {
+    this.applyConfig(config);
   }
 }
 
