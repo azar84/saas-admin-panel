@@ -164,6 +164,13 @@ class DesignSystemService {
     }
 
     // Apply typography
+    if (config.typography.fontFamily) {
+      Object.entries(config.typography.fontFamily).forEach(([family, fonts]) => {
+        const fontStack = Array.isArray(fonts) ? fonts.join(', ') : fonts;
+        root.style.setProperty(`--font-family-${family}`, fontStack);
+      });
+    }
+
     if (config.typography.fontSize) {
       Object.entries(config.typography.fontSize).forEach(([size, value]) => {
         root.style.setProperty(`--font-size-${size}`, value);
@@ -210,7 +217,7 @@ class DesignSystemService {
     }
   }
 
-  updateTypography(category: 'fontSize' | 'fontWeight' | 'lineHeight', token: string, value: string) {
+  updateTypography(category: 'fontSize' | 'fontWeight' | 'lineHeight' | 'fontFamily', token: string, value: string | string[]) {
     if (this.config && this.config.typography[category]) {
       this.config.typography[category][token] = value;
       this.applyConfig(this.config);

@@ -145,30 +145,12 @@ export default function DesignSystemPage() {
 
   const handleFontFamilyChange = (family: string, fonts: string[]) => {
     if (!config) return;
-    setConfig({
-      ...config,
-      typography: {
-        ...config.typography,
-        fontFamily: {
-          ...config.typography.fontFamily,
-          [family]: fonts,
-        },
-      },
-    });
+    designSystemService.updateTypography('fontFamily', family, fonts);
   };
 
   const handleLineHeightChange = (token: string, value: string) => {
     if (!config) return;
-    setConfig({
-      ...config,
-      typography: {
-        ...config.typography,
-        lineHeight: {
-          ...config.typography.lineHeight,
-          [token]: value,
-        },
-      },
-    });
+    designSystemService.updateTypography('lineHeight', token, value);
   };
 
   const handleSpacingChange = (token: string, value: string) => {
@@ -403,10 +385,43 @@ export default function DesignSystemPage() {
         <div className="border-b border-bg-tertiary">
           <nav className="-mb-px flex space-x-8">
             {[
-              { id: 'colors', label: 'Colors', icon: '🎨' },
-              { id: 'typography', label: 'Typography', icon: '📝' },
-              { id: 'spacing', label: 'Spacing', icon: '📏' },
-              { id: 'preview', label: 'Preview', icon: '👁️' },
+              { 
+                id: 'colors', 
+                label: 'Colors', 
+                icon: (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 19A7.5 7.5 0 016 18.75V8.25m0 0V6a2.25 2.25 0 012.25-2.25h8.25A2.25 2.25 0 0121 6v.75m0 0V9a2.25 2.25 0 01-2.25 2.25H9m12.75-3V3.375c0-.621-.504-1.125-1.125-1.125H4.125C3.504 2.25 3 2.754 3 3.375V9m12.75 0V18.75c0 .621-.504 1.125-1.125 1.125H9.75c-.621 0-1.125-.504-1.125-1.125V9" />
+                  </svg>
+                )
+              },
+              { 
+                id: 'typography', 
+                label: 'Typography', 
+                icon: (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                  </svg>
+                )
+              },
+              { 
+                id: 'spacing', 
+                label: 'Spacing', 
+                icon: (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 018.25 20.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                  </svg>
+                )
+              },
+              { 
+                id: 'preview', 
+                label: 'Preview', 
+                icon: (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.639 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.639 0-8.573-3.007-9.963-7.178z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                )
+              },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -417,7 +432,7 @@ export default function DesignSystemPage() {
                     : 'border-transparent text-body hover:text-heading hover:border-medium'
                 }`}
               >
-                <span>{tab.icon}</span>
+                {tab.icon}
                 <span>{tab.label}</span>
               </button>
             ))}

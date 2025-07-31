@@ -62,6 +62,10 @@ export function DynamicCSS() {
         Object.entries(defaultColors).forEach(([colorName, colorValue]) => {
           root.style.setProperty(`--${colorName}`, colorValue);
         });
+
+        // Set default font families
+        root.style.setProperty('--font-family-sans', 'Inter, system-ui, sans-serif');
+        root.style.setProperty('--font-family-mono', 'JetBrains Mono, monospace');
         
         return;
       }
@@ -72,6 +76,13 @@ export function DynamicCSS() {
       });
 
       // Apply typography
+      if (config.typography.fontFamily) {
+        Object.entries(config.typography.fontFamily).forEach(([family, fonts]) => {
+          const fontStack = Array.isArray(fonts) ? fonts.join(', ') : fonts;
+          root.style.setProperty(`--font-family-${family}`, fontStack);
+        });
+      }
+
       if (config.typography.fontSize) {
         Object.entries(config.typography.fontSize).forEach(([size, value]) => {
           root.style.setProperty(`--font-size-${size}`, value);
