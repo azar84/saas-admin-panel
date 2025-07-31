@@ -76,6 +76,7 @@ export default function DesignSystemPage() {
   const [activeItem, setActiveItem] = useState('/design-system');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedPalette, setSelectedPalette] = useState('brand');
+  const [activeTab, setActiveTab] = useState('colors');
   const [config, setConfig] = useState<DesignSystemConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [overrides, setOverrides] = useState<Record<string, string>>({});
@@ -140,6 +141,34 @@ export default function DesignSystemPage() {
 
   const handleTypographyChange = (category: string, token: string, value: string) => {
     designSystemService.updateTypography(category as any, token, value);
+  };
+
+  const handleFontFamilyChange = (family: string, fonts: string[]) => {
+    if (!config) return;
+    setConfig({
+      ...config,
+      typography: {
+        ...config.typography,
+        fontFamily: {
+          ...config.typography.fontFamily,
+          [family]: fonts,
+        },
+      },
+    });
+  };
+
+  const handleLineHeightChange = (token: string, value: string) => {
+    if (!config) return;
+    setConfig({
+      ...config,
+      typography: {
+        ...config.typography,
+        lineHeight: {
+          ...config.typography.lineHeight,
+          [token]: value,
+        },
+      },
+    });
   };
 
   const handleSpacingChange = (token: string, value: string) => {
@@ -252,6 +281,78 @@ export default function DesignSystemPage() {
 
   const currentPalette = colorPalettes.find(p => p.name === selectedPalette);
 
+  // Font family options
+  const fontFamilyOptions = [
+    {
+      name: 'Inter',
+      value: ['Inter', 'system-ui', 'sans-serif'],
+      description: 'Modern, clean sans-serif font',
+    },
+    {
+      name: 'Roboto',
+      value: ['Roboto', 'system-ui', 'sans-serif'],
+      description: 'Google\'s system font',
+    },
+    {
+      name: 'Open Sans',
+      value: ['Open Sans', 'system-ui', 'sans-serif'],
+      description: 'Humanist sans-serif font',
+    },
+    {
+      name: 'Lato',
+      value: ['Lato', 'system-ui', 'sans-serif'],
+      description: 'Balanced sans-serif font',
+    },
+    {
+      name: 'Poppins',
+      value: ['Poppins', 'system-ui', 'sans-serif'],
+      description: 'Geometric sans-serif font',
+    },
+    {
+      name: 'Montserrat',
+      value: ['Montserrat', 'system-ui', 'sans-serif'],
+      description: 'Elegant sans-serif font',
+    },
+    {
+      name: 'Source Sans Pro',
+      value: ['Source Sans Pro', 'system-ui', 'sans-serif'],
+      description: 'Adobe\'s clean sans-serif',
+    },
+    {
+      name: 'Nunito',
+      value: ['Nunito', 'system-ui', 'sans-serif'],
+      description: 'Rounded sans-serif font',
+    },
+  ];
+
+  const monoFontOptions = [
+    {
+      name: 'JetBrains Mono',
+      value: ['JetBrains Mono', 'monospace'],
+      description: 'Programming font with ligatures',
+    },
+    {
+      name: 'Fira Code',
+      value: ['Fira Code', 'monospace'],
+      description: 'Mozilla\'s programming font',
+    },
+    {
+      name: 'Source Code Pro',
+      value: ['Source Code Pro', 'monospace'],
+      description: 'Adobe\'s programming font',
+    },
+    {
+      name: 'Cascadia Code',
+      value: ['Cascadia Code', 'monospace'],
+      description: 'Microsoft\'s programming font',
+    },
+    {
+      name: 'Monaco',
+      value: ['Monaco', 'monospace'],
+      description: 'Apple\'s programming font',
+    },
+  ];
+
   return (
     <>
       <Toast
@@ -298,7 +399,35 @@ export default function DesignSystemPage() {
         }}
       >
       <div className="space-y-6">
-        {/* Color Palette Management */}
+        {/* Tab Navigation */}
+        <div className="border-b border-bg-tertiary">
+          <nav className="-mb-px flex space-x-8">
+            {[
+              { id: 'colors', label: 'Colors', icon: '🎨' },
+              { id: 'typography', label: 'Typography', icon: '📝' },
+              { id: 'spacing', label: 'Spacing', icon: '📏' },
+              { id: 'preview', label: 'Preview', icon: '👁️' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                  activeTab === tab.id
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-body hover:text-heading hover:border-medium'
+                }`}
+              >
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Colors Tab */}
+        {activeTab === 'colors' && (
+          <>
+            {/* Color Palette Management */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -513,135 +642,285 @@ export default function DesignSystemPage() {
             </div>
           </CardBody>
         </Card>
+          </>
+        )}
 
-        {/* Typography Management */}
-        <Card>
-          <CardHeader>
-                          <h3 className="text-lg font-semibold text-heading">Typography</h3>
-          </CardHeader>
-          <CardBody>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h4 className="font-medium text-heading">Font Sizes</h4>
-                <div className="space-y-2">
-                                     {Object.entries((config.typography.fontSize as Record<string, string>) || {}).map(([size, value]) => (
-                     <div key={size} className="flex items-center justify-between">
-                                               <span className="text-sm text-body">{size}</span>
-                       <Input
-                         size="sm"
-                         value={value}
-                         onChange={(e) => handleTypographyChange('fontSize', size, e.target.value)}
-                         className="w-24"
-                       />
-                     </div>
-                   ))}
-                </div>
-              </div>
-              <div className="space-y-4">
-                <h4 className="font-medium text-heading">Font Weights</h4>
-                <div className="space-y-2">
-                                     {Object.entries((config.typography.fontWeight as Record<string, string>) || {}).map(([weight, value]) => (
-                     <div key={weight} className="flex items-center justify-between">
-                                               <span className="text-sm text-body">{weight}</span>
-                       <Input
-                         size="sm"
-                         value={value}
-                         onChange={(e) => handleTypographyChange('fontWeight', weight, e.target.value)}
-                         className="w-24"
-                       />
-                     </div>
-                   ))}
-                </div>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* Spacing Management */}
-        <Card>
-          <CardHeader>
-                          <h3 className="text-lg font-semibold text-heading">Spacing</h3>
-          </CardHeader>
-          <CardBody>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {Object.entries(config.spacing).map(([spacing, value]) => (
-                <div key={spacing} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                                            <span className="text-sm font-medium text-heading">{spacing}</span>
-                    <Input
-                      size="sm"
-                      value={value}
-                      onChange={(e) => handleSpacingChange(spacing, e.target.value)}
-                      className="w-20"
-                    />
+        {/* Typography Tab */}
+        {activeTab === 'typography' && (
+          <>
+            {/* Font Family Selection */}
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-semibold text-heading">Font Families</h3>
+                <p className="text-sm text-body">Select and customize font families for your design system</p>
+              </CardHeader>
+              <CardBody>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Sans-serif Font Selection */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-heading">Sans-serif Font</h4>
+                    <div className="space-y-3">
+                      {fontFamilyOptions.map((font) => {
+                        const currentFonts = config.typography.fontFamily?.sans || ['Inter', 'system-ui', 'sans-serif'];
+                        const isSelected = currentFonts[0] === font.value[0];
+                        return (
+                          <div
+                            key={font.name}
+                            className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                              isSelected
+                                ? 'border-primary bg-primary/5'
+                                : 'border-medium hover:border-primary/50'
+                            }`}
+                            onClick={() => handleFontFamilyChange('sans', font.value)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <div className="font-medium text-heading" style={{ fontFamily: font.value.join(', ') }}>
+                                  {font.name}
+                                </div>
+                                <div className="text-sm text-body mt-1">{font.description}</div>
+                              </div>
+                              {isSelected && (
+                                <div className="text-primary">
+                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div
-                    className="h-4 bg-bg-tertiary rounded"
-                    style={{ width: value }}
-                  />
-                </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
 
-        {/* Border Radius Management */}
-        <Card>
-          <CardHeader>
-                          <h3 className="text-lg font-semibold text-heading">Border Radius</h3>
-          </CardHeader>
-          <CardBody>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {Object.entries(config.borderRadius).map(([radius, value]) => (
-                <div key={radius} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                                            <span className="text-sm font-medium text-heading">{radius}</span>
-                    <Input
-                      size="sm"
-                      value={value}
-                      onChange={(e) => handleBorderRadiusChange(radius, e.target.value)}
-                      className="w-24"
-                    />
+                  {/* Monospace Font Selection */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-heading">Monospace Font</h4>
+                    <div className="space-y-3">
+                      {monoFontOptions.map((font) => {
+                        const currentFonts = config.typography.fontFamily?.mono || ['JetBrains Mono', 'monospace'];
+                        const isSelected = currentFonts[0] === font.value[0];
+                        return (
+                          <div
+                            key={font.name}
+                            className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                              isSelected
+                                ? 'border-primary bg-primary/5'
+                                : 'border-medium hover:border-primary/50'
+                            }`}
+                            onClick={() => handleFontFamilyChange('mono', font.value)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <div className="font-medium text-heading" style={{ fontFamily: font.value.join(', ') }}>
+                                  {font.name}
+                                </div>
+                                <div className="text-sm text-body mt-1">{font.description}</div>
+                              </div>
+                              {isSelected && (
+                                <div className="text-primary">
+                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div
-                    className="h-8 bg-primary-500"
-                    style={{ borderRadius: value }}
-                  />
                 </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
+              </CardBody>
+            </Card>
 
-        {/* Preview Section */}
-        <Card>
-          <CardHeader>
-                          <h3 className="text-lg font-semibold text-heading">Live Preview</h3>
-          </CardHeader>
-          <CardBody>
-            <div className="space-y-4">
-              <div className="flex space-x-2">
-                <Button variant="primary">Primary Button</Button>
-                <Button variant="secondary">Secondary Button</Button>
-                <Button variant="tertiary">Tertiary Button</Button>
-                <Button variant="outline">Outline Button</Button>
-                <Button variant="ghost">Ghost Button</Button>
-                <Button variant="danger">Danger Button</Button>
-              </div>
-              <div className="flex space-x-2">
-                <Badge variant="primary">Primary</Badge>
-                <Badge variant="secondary">Secondary</Badge>
-                <Badge variant="success">Success</Badge>
-                <Badge variant="warning">Warning</Badge>
-                <Badge variant="error">Error</Badge>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input label="Sample Input" placeholder="Enter text here" />
-                <Input label="Error Input" placeholder="Error state" variant="error" error="This field is required" />
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+                        {/* Typography Management */}
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-semibold text-heading">Typography Settings</h3>
+                <p className="text-sm text-body">Customize font sizes, weights, and line heights</p>
+              </CardHeader>
+              <CardBody>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-heading">Font Sizes</h4>
+                    <div className="space-y-2">
+                      {Object.entries((config.typography.fontSize as Record<string, string>) || {}).map(([size, value]) => (
+                        <div key={size} className="flex items-center justify-between">
+                          <span className="text-sm text-body">{size}</span>
+                          <Input
+                            size="sm"
+                            value={value}
+                            onChange={(e) => handleTypographyChange('fontSize', size, e.target.value)}
+                            className="w-24"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-heading">Font Weights</h4>
+                    <div className="space-y-2">
+                      {Object.entries((config.typography.fontWeight as Record<string, string>) || {}).map(([weight, value]) => (
+                        <div key={weight} className="flex items-center justify-between">
+                          <span className="text-sm text-body">{weight}</span>
+                          <Input
+                            size="sm"
+                            value={value}
+                            onChange={(e) => handleTypographyChange('fontWeight', weight, e.target.value)}
+                            className="w-24"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-heading">Line Heights</h4>
+                    <div className="space-y-2">
+                      {Object.entries((config.typography.lineHeight as Record<string, string>) || {}).map(([height, value]) => (
+                        <div key={height} className="flex items-center justify-between">
+                          <span className="text-sm text-body">{height}</span>
+                          <Input
+                            size="sm"
+                            value={value}
+                            onChange={(e) => handleLineHeightChange(height, e.target.value)}
+                            className="w-24"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          </>
+        )}
+
+        {/* Spacing Tab */}
+        {activeTab === 'spacing' && (
+          <>
+            {/* Spacing Management */}
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-semibold text-heading">Spacing</h3>
+                <p className="text-sm text-body">Customize spacing values for consistent layouts</p>
+              </CardHeader>
+              <CardBody>
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {Object.entries(config.spacing).map(([spacing, value]) => (
+                    <div key={spacing} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-heading">{spacing}</span>
+                        <Input
+                          size="sm"
+                          value={value}
+                          onChange={(e) => handleSpacingChange(spacing, e.target.value)}
+                          className="w-20"
+                        />
+                      </div>
+                      <div
+                        className="h-4 bg-bg-tertiary rounded"
+                        style={{ width: value }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+
+            {/* Border Radius Management */}
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-semibold text-heading">Border Radius</h3>
+                <p className="text-sm text-body">Customize border radius values for rounded elements</p>
+              </CardHeader>
+              <CardBody>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {Object.entries(config.borderRadius).map(([radius, value]) => (
+                    <div key={radius} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-heading">{radius}</span>
+                        <Input
+                          size="sm"
+                          value={value}
+                          onChange={(e) => handleBorderRadiusChange(radius, e.target.value)}
+                          className="w-24"
+                        />
+                      </div>
+                      <div
+                        className="h-8 bg-primary"
+                        style={{ borderRadius: value }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+          </>
+        )}
+
+        {/* Preview Tab */}
+        {activeTab === 'preview' && (
+          <>
+            {/* Preview Section */}
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-semibold text-heading">Live Preview</h3>
+                <p className="text-sm text-body">See how your design system changes affect the interface</p>
+              </CardHeader>
+              <CardBody>
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="font-medium text-heading mb-3">Typography Preview</h4>
+                    <div className="space-y-2">
+                      <h1 className="text-4xl font-bold" style={{ fontFamily: config.typography.fontFamily?.sans?.join(', ') }}>
+                        Heading 1 - {config.typography.fontFamily?.sans?.[0] || 'Inter'}
+                      </h1>
+                      <h2 className="text-3xl font-semibold" style={{ fontFamily: config.typography.fontFamily?.sans?.join(', ') }}>
+                        Heading 2 - {config.typography.fontFamily?.sans?.[0] || 'Inter'}
+                      </h2>
+                      <h3 className="text-2xl font-medium" style={{ fontFamily: config.typography.fontFamily?.sans?.join(', ') }}>
+                        Heading 3 - {config.typography.fontFamily?.sans?.[0] || 'Inter'}
+                      </h3>
+                      <p className="text-base" style={{ fontFamily: config.typography.fontFamily?.sans?.join(', ') }}>
+                        This is a sample paragraph using the selected font family. It demonstrates how the typography settings affect the overall appearance of text content.
+                      </p>
+                      <code className="text-sm bg-bg-tertiary px-2 py-1 rounded" style={{ fontFamily: config.typography.fontFamily?.mono?.join(', ') }}>
+                        Monospace font: {config.typography.fontFamily?.mono?.[0] || 'JetBrains Mono'}
+                      </code>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium text-heading mb-3">Component Preview</h4>
+                    <div className="space-y-4">
+                      <div className="flex space-x-2">
+                        <Button variant="primary">Primary Button</Button>
+                        <Button variant="secondary">Secondary Button</Button>
+                        <Button variant="tertiary">Tertiary Button</Button>
+                        <Button variant="outline">Outline Button</Button>
+                        <Button variant="ghost">Ghost Button</Button>
+                        <Button variant="danger">Danger Button</Button>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Badge variant="primary">Primary</Badge>
+                        <Badge variant="secondary">Secondary</Badge>
+                        <Badge variant="success">Success</Badge>
+                        <Badge variant="warning">Warning</Badge>
+                        <Badge variant="error">Error</Badge>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Input label="Sample Input" placeholder="Enter text here" />
+                        <Input label="Error Input" placeholder="Error state" variant="error" error="This field is required" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          </>
+        )}
       </div>
               </AdminLayout>
 
