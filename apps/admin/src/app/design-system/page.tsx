@@ -772,7 +772,7 @@ export default function DesignSystemPage() {
                 <p className="text-sm text-body">Customize font sizes, weights, and line heights</p>
               </CardHeader>
               <CardBody>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="space-y-4">
                     <h4 className="font-medium text-heading">Font Sizes</h4>
                     <div className="space-y-2">
@@ -815,6 +815,22 @@ export default function DesignSystemPage() {
                             size="sm"
                             value={value}
                             onChange={(e) => handleLineHeightChange(height, e.target.value)}
+                            className="w-24"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-heading">Letter Spacing</h4>
+                    <div className="space-y-2">
+                      {Object.entries((config.typography.letterSpacing as Record<string, string>) || {}).map(([spacing, value]) => (
+                        <div key={spacing} className="flex items-center justify-between">
+                          <span className="text-sm text-body">{spacing}</span>
+                          <Input
+                            size="sm"
+                            value={value}
+                            onChange={(e) => handleTypographyChange('letterSpacing', spacing, e.target.value)}
                             className="w-24"
                           />
                         </div>

@@ -197,6 +197,13 @@ class DesignSystemService {
       });
     }
 
+    // Apply letter spacing
+    if (config.typography.letterSpacing) {
+      Object.entries(config.typography.letterSpacing).forEach(([spacing, value]) => {
+        root.style.setProperty(`--letter-spacing-${spacing}`, value);
+      });
+    }
+
     // Apply spacing
     if (config.spacing) {
       Object.entries(config.spacing).forEach(([token, value]) => {
@@ -231,7 +238,7 @@ class DesignSystemService {
     }
   }
 
-  updateTypography(category: 'fontSize' | 'fontWeight' | 'lineHeight' | 'fontFamily', token: string, value: string | string[]) {
+  updateTypography(category: 'fontSize' | 'fontWeight' | 'lineHeight' | 'fontFamily' | 'letterSpacing', token: string, value: string | string[]) {
     if (this.config) {
       if (!this.config.typography[category]) {
         this.config.typography[category] = {};
