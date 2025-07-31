@@ -27,15 +27,41 @@
   }
 }
 
-@layer components {
-  /* Dynamic font weight utilities */
-  .font-thin { font-weight: var(--font-weight-thin, 100); }
-  .font-extralight { font-weight: var(--font-weight-extralight, 200); }
-  .font-light { font-weight: var(--font-weight-light, 300); }
-  .font-normal { font-weight: var(--font-weight-normal, 400); }
-  .font-medium { font-weight: var(--font-weight-medium, 500); }
-  .font-semibold { font-weight: var(--font-weight-semibold, 600); }
-  .font-bold { font-weight: var(--font-weight-bold, 700); }
-  .font-extrabold { font-weight: var(--font-weight-extrabold, 800); }
-  .font-black { font-weight: var(--font-weight-black, 900); }
+@layer utilities {
+  /* Dynamic font weight utilities - more specific than Tailwind defaults */
+  .font-thin { font-weight: var(--font-weight-thin, 100) !important; }
+  .font-extralight { font-weight: var(--font-weight-extralight, 200) !important; }
+  .font-light { font-weight: var(--font-weight-light, 300) !important; }
+  .font-normal { font-weight: var(--font-weight-normal, 400) !important; }
+  .font-medium { font-weight: var(--font-weight-medium, 500) !important; }
+  .font-semibold { font-weight: var(--font-weight-semibold, 600) !important; }
+  .font-bold { font-weight: var(--font-weight-bold, 700) !important; }
+  .font-extrabold { font-weight: var(--font-weight-extrabold, 800) !important; }
+  .font-black { font-weight: var(--font-weight-black, 900) !important; }
+
+  /* Dynamic font size utilities */
+  .text-xs { font-size: var(--font-size-xs, 0.75rem) !important; }
+  .text-sm { font-size: var(--font-size-sm, 0.875rem) !important; }
+  .text-base { font-size: var(--font-size-base, 1rem) !important; }
+  .text-lg { font-size: var(--font-size-lg, 1.125rem) !important; }
+  .text-xl { font-size: var(--font-size-xl, 1.25rem) !important; }
+  .text-2xl { font-size: var(--font-size-2xl, 1.5rem) !important; }
+  .text-3xl { font-size: var(--font-size-3xl, 1.875rem) !important; }
+  .text-4xl { font-size: var(--font-size-4xl, 2.25rem) !important; }
+
+  /* Dynamic line height utilities */
+  .leading-none { line-height: var(--line-height-none, 1) !important; }
+  .leading-tight { line-height: var(--line-height-tight, 1.25) !important; }
+  .leading-snug { line-height: var(--line-height-snug, 1.375) !important; }
+  .leading-normal { line-height: var(--line-height-normal, 1.5) !important; }
+  .leading-relaxed { line-height: var(--line-height-relaxed, 1.625) !important; }
+  .leading-loose { line-height: var(--line-height-loose, 2) !important; }
+
+  /* Dynamic letter spacing utilities */
+  .tracking-tighter { letter-spacing: var(--letter-spacing-tighter, -0.05em) !important; }
+  .tracking-tight { letter-spacing: var(--letter-spacing-tight, -0.025em) !important; }
+  .tracking-normal { letter-spacing: var(--letter-spacing-normal, 0em) !important; }
+  .tracking-wide { letter-spacing: var(--letter-spacing-wide, 0.025em) !important; }
+  .tracking-wider { letter-spacing: var(--letter-spacing-wider, 0.05em) !important; }
+  .tracking-widest { letter-spacing: var(--letter-spacing-widest, 0.1em) !important; }
 } 

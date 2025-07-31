@@ -87,10 +87,15 @@ export default function DesignSystemPage() {
   // Subscribe to design system changes
   useEffect(() => {
     const loadConfig = async () => {
-      const activeConfig = await designSystemService.loadActiveConfig();
-      setConfig(activeConfig);
-      setOverrides(designSystemService.getOverrides());
-      setLoading(false);
+      try {
+        const activeConfig = await designSystemService.loadActiveConfig();
+        setConfig(activeConfig);
+        setOverrides(designSystemService.getOverrides());
+      } catch (error) {
+        console.error('Error loading config:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     const unsubscribe = designSystemService.subscribe((newConfig) => {
@@ -154,8 +159,9 @@ export default function DesignSystemPage() {
       },
     });
     
-    // Update the design system service immediately
-    designSystemService.updateTypography(category as any, token, value);
+    // Apply the change immediately to DOM without triggering service subscribers
+    const root = document.documentElement;
+    root.style.setProperty(`--${category}-${token}`, value);
   };
 
   const handleFontFamilyChange = (family: string, fonts: string[]) => {
@@ -172,10 +178,7 @@ export default function DesignSystemPage() {
     };
     setConfig(updatedConfig);
     
-    // Update the design system service immediately
-    designSystemService.updateConfig(updatedConfig.id, updatedConfig);
-    
-    // Apply fonts immediately for dynamic preview
+    // Apply fonts immediately for dynamic preview without triggering service subscribers
     const root = document.documentElement;
     if (family === 'sans') {
       const fontStack = fonts.join(', ');
@@ -201,16 +204,43 @@ export default function DesignSystemPage() {
       },
     });
     
-    // Update the design system service immediately
-    designSystemService.updateTypography('lineHeight', token, value);
+    // Apply the change immediately to DOM without triggering service subscribers
+    const root = document.documentElement;
+    root.style.setProperty(`--line-height-${token}`, value);
   };
 
   const handleSpacingChange = (token: string, value: string) => {
-    designSystemService.updateSpacing(token, value);
+    if (!config) return;
+    
+    // Update local state immediately
+    setConfig({
+      ...config,
+      spacing: {
+        ...config.spacing,
+        [token]: value,
+      },
+    });
+    
+    // Apply the change immediately to DOM without triggering service subscribers
+    const root = document.documentElement;
+    root.style.setProperty(`--spacing-${token}`, value);
   };
 
   const handleBorderRadiusChange = (token: string, value: string) => {
-    designSystemService.updateBorderRadius(token, value);
+    if (!config) return;
+    
+    // Update local state immediately
+    setConfig({
+      ...config,
+      borderRadius: {
+        ...config.borderRadius,
+        [token]: value,
+      },
+    });
+    
+    // Apply the change immediately to DOM without triggering service subscribers
+    const root = document.documentElement;
+    root.style.setProperty(`--border-radius-${token}`, value);
   };
 
   const handleExportConfig = () => {
@@ -241,6 +271,140 @@ export default function DesignSystemPage() {
 
   const hideToast = () => {
     setToast(prev => ({ ...prev, isVisible: false }));
+  };
+
+  // Helper function to parse typography values
+  const parseTypographyValue = (value: string) => {
+    // Handle values like '0' (no unit)
+    if (/^\d+(\.\d+)?$/.test(value)) {
+      return { number: parseFloat(value), unit: '' };
+    }
+    
+    // Handle values with units like '0.75rem', '-0.05em', etc.
+    const match = value.match(/^([\d.-]+)(\D+)$/);
+    if (match) {
+      return { number: parseFloat(match[1]), unit: match[2] };
+    }
+    
+    // Fallback
+    return { number: 0, unit: 'rem' };
+  };
+
+  // Helper function to format typography values
+  const formatTypographyValue = (number: number, unit: string) => {
+    return `${number}${unit}`;
+  };
+
+  // Default typography values for reset functionality
+  const defaultTypographyValues = {
+    fontSize: {
+      xs: '0.75rem',
+      sm: '0.875rem',
+      base: '1rem',
+      lg: '1.125rem',
+      xl: '1.25rem',
+      '2xl': '1.5rem',
+      '3xl': '1.875rem',
+      '4xl': '2.25rem',
+      '5xl': '3rem',
+      '6xl': '3.75rem',
+      '7xl': '4.5rem',
+      '8xl': '6rem',
+      '9xl': '8rem',
+    },
+    fontWeight: {
+      thin: '100',
+      extralight: '200',
+      light: '300',
+      normal: '400',
+      medium: '500',
+      semibold: '600',
+      bold: '700',
+      extrabold: '800',
+      black: '900',
+    },
+    lineHeight: {
+      none: '1',
+      tight: '1.25',
+      snug: '1.375',
+      normal: '1.5',
+      relaxed: '1.625',
+      loose: '2',
+    },
+    letterSpacing: {
+      tighter: '-0.05em',
+      tight: '-0.025em',
+      normal: '0',
+      wide: '0.025em',
+      wider: '0.05em',
+      widest: '0.1em',
+    },
+  };
+
+  // Reset typography to default values
+  const handleResetTypography = () => {
+    if (!config) return;
+
+    const updatedConfig = {
+      ...config,
+      typography: {
+        ...config.typography,
+        fontSize: { ...defaultTypographyValues.fontSize },
+        fontWeight: { ...defaultTypographyValues.fontWeight },
+        lineHeight: { ...defaultTypographyValues.lineHeight },
+        letterSpacing: { ...defaultTypographyValues.letterSpacing },
+      },
+    };
+
+    // Update state first
+    setConfig(updatedConfig);
+    
+    // Apply changes immediately to DOM
+    const root = document.documentElement;
+    
+    // Apply font sizes
+    Object.entries(defaultTypographyValues.fontSize).forEach(([size, value]) => {
+      root.style.setProperty(`--font-size-${size}`, value);
+    });
+
+    // Apply font weights
+    Object.entries(defaultTypographyValues.fontWeight).forEach(([weight, value]) => {
+      root.style.setProperty(`--font-weight-${weight}`, value);
+    });
+
+    // Apply line heights
+    Object.entries(defaultTypographyValues.lineHeight).forEach(([height, value]) => {
+      root.style.setProperty(`--line-height-${height}`, value);
+    });
+
+    // Apply letter spacing
+    Object.entries(defaultTypographyValues.letterSpacing).forEach(([spacing, value]) => {
+      root.style.setProperty(`--letter-spacing-${spacing}`, value);
+    });
+  };
+
+  const handleTypographyNumberChange = (category: string, token: string, newNumber: number) => {
+    if (!config) return;
+    
+    const currentValue = config.typography[category]?.[token] || '1rem';
+    const { unit } = parseTypographyValue(currentValue);
+    const newValue = formatTypographyValue(newNumber, unit);
+    
+    // Update local state immediately
+    setConfig({
+      ...config,
+      typography: {
+        ...config.typography,
+        [category]: {
+          ...config.typography[category],
+          [token]: newValue,
+        },
+      },
+    });
+    
+    // Apply the change immediately to DOM without triggering service subscribers
+    const root = document.documentElement;
+    root.style.setProperty(`--${category}-${token}`, newValue);
   };
 
   const handleSaveChanges = async () => {
@@ -277,10 +441,26 @@ export default function DesignSystemPage() {
     }
   };
 
-  if (loading || !config) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-body">Loading design system configuration...</div>
+      </div>
+    );
+  }
+
+  if (!config) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="text-body mb-2">Failed to load design system configuration</div>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -768,76 +948,229 @@ export default function DesignSystemPage() {
             {/* Typography Management */}
             <Card>
               <CardHeader>
-                <h3 className="text-lg font-semibold text-heading">Typography Settings</h3>
-                <p className="text-sm text-body">Customize font sizes, weights, and line heights</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-heading">Typography Settings</h3>
+                    <p className="text-sm text-body">Customize font sizes, weights, and line heights</p>
+                  </div>
+                  <Button 
+                    variant="secondary" 
+                    size="sm"
+                    onClick={handleResetTypography}
+                    className="text-xs"
+                  >
+                    Reset to Defaults
+                  </Button>
+                </div>
               </CardHeader>
               <CardBody>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="space-y-4">
                     <h4 className="font-medium text-heading">Font Sizes</h4>
                     <div className="space-y-2">
-                      {Object.entries((config.typography.fontSize as Record<string, string>) || {}).map(([size, value]) => (
-                        <div key={size} className="flex items-center justify-between">
-                          <span className="text-sm text-body">{size}</span>
-                          <Input
-                            size="sm"
-                            value={value}
-                            onChange={(e) => handleTypographyChange('fontSize', size, e.target.value)}
-                            className="w-24"
-                          />
-                        </div>
-                      ))}
+                      {Object.entries((config.typography.fontSize as Record<string, string>) || {}).map(([size, value]) => {
+                        const { number, unit } = parseTypographyValue(value);
+                        return (
+                          <div key={size} className="flex items-center space-x-4">
+                            <span className="text-sm text-body w-16">{size}</span>
+                            <div className="flex items-center space-x-1">
+                              <button
+                                onClick={() => handleTypographyNumberChange('fontSize', size, Math.max(0.1, number - 0.1))}
+                                className="w-6 h-6 flex items-center justify-center text-xs border border-medium rounded hover:bg-bg-secondary"
+                              >
+                                -
+                              </button>
+                              <Input
+                                size="sm"
+                                type="number"
+                                step="0.1"
+                                value={number}
+                                onChange={(e) => handleTypographyNumberChange('fontSize', size, parseFloat(e.target.value) || 0)}
+                                className="w-20 text-center"
+                              />
+                              <button
+                                onClick={() => handleTypographyNumberChange('fontSize', size, number + 0.1)}
+                                className="w-6 h-6 flex items-center justify-center text-xs border border-medium rounded hover:bg-bg-secondary"
+                              >
+                                +
+                              </button>
+                              <span className="text-xs text-body ml-1">{unit}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                   <div className="space-y-4">
                     <h4 className="font-medium text-heading">Font Weights</h4>
                     <div className="space-y-2">
-                      {Object.entries((config.typography.fontWeight as Record<string, string>) || {}).map(([weight, value]) => (
-                        <div key={weight} className="flex items-center justify-between">
-                          <span className="text-sm text-body">{weight}</span>
-                          <Input
-                            size="sm"
-                            value={value}
-                            onChange={(e) => handleTypographyChange('fontWeight', weight, e.target.value)}
-                            className="w-24"
-                          />
-                        </div>
-                      ))}
+                      {Object.entries((config.typography.fontWeight as Record<string, string>) || {}).map(([weight, value]) => {
+                        const { number, unit } = parseTypographyValue(value);
+                        return (
+                          <div key={weight} className="flex items-center space-x-4">
+                            <span className="text-sm text-body w-16">{weight}</span>
+                            <div className="flex items-center space-x-1">
+                              <button
+                                onClick={() => handleTypographyNumberChange('fontWeight', weight, Math.max(100, number - 100))}
+                                className="w-6 h-6 flex items-center justify-center text-xs border border-medium rounded hover:bg-bg-secondary"
+                              >
+                                -
+                              </button>
+                              <Input
+                                size="sm"
+                                type="number"
+                                step="100"
+                                value={number}
+                                onChange={(e) => handleTypographyNumberChange('fontWeight', weight, parseInt(e.target.value) || 0)}
+                                className="w-20 text-center"
+                              />
+                              <button
+                                onClick={() => handleTypographyNumberChange('fontWeight', weight, Math.min(900, number + 100))}
+                                className="w-6 h-6 flex items-center justify-center text-xs border border-medium rounded hover:bg-bg-secondary"
+                              >
+                                +
+                              </button>
+                              <span className="text-xs text-body ml-1">{unit}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                   <div className="space-y-4">
                     <h4 className="font-medium text-heading">Line Heights</h4>
                     <div className="space-y-2">
-                      {Object.entries((config.typography.lineHeight as Record<string, string>) || {}).map(([height, value]) => (
-                        <div key={height} className="flex items-center justify-between">
-                          <span className="text-sm text-body">{height}</span>
-                          <Input
-                            size="sm"
-                            value={value}
-                            onChange={(e) => handleLineHeightChange(height, e.target.value)}
-                            className="w-24"
-                          />
-                        </div>
-                      ))}
+                      {Object.entries((config.typography.lineHeight as Record<string, string>) || {}).map(([height, value]) => {
+                        const { number, unit } = parseTypographyValue(value);
+                        return (
+                          <div key={height} className="flex items-center space-x-4">
+                            <span className="text-sm text-body w-16">{height}</span>
+                            <div className="flex items-center space-x-1">
+                              <button
+                                onClick={() => handleTypographyNumberChange('lineHeight', height, Math.max(0.1, number - 0.1))}
+                                className="w-6 h-6 flex items-center justify-center text-xs border border-medium rounded hover:bg-bg-secondary"
+                              >
+                                -
+                              </button>
+                              <Input
+                                size="sm"
+                                type="number"
+                                step="0.1"
+                                value={number}
+                                onChange={(e) => handleTypographyNumberChange('lineHeight', height, parseFloat(e.target.value) || 0)}
+                                className="w-20 text-center"
+                              />
+                              <button
+                                onClick={() => handleTypographyNumberChange('lineHeight', height, number + 0.1)}
+                                className="w-6 h-6 flex items-center justify-center text-xs border border-medium rounded hover:bg-bg-secondary"
+                              >
+                                +
+                              </button>
+                              <span className="text-xs text-body ml-1">{unit}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                   <div className="space-y-4">
                     <h4 className="font-medium text-heading">Letter Spacing</h4>
                     <div className="space-y-2">
-                      {Object.entries((config.typography.letterSpacing as Record<string, string>) || {}).map(([spacing, value]) => (
-                        <div key={spacing} className="flex items-center justify-between">
-                          <span className="text-sm text-body">{spacing}</span>
-                          <Input
-                            size="sm"
-                            value={value}
-                            onChange={(e) => handleTypographyChange('letterSpacing', spacing, e.target.value)}
-                            className="w-24"
-                          />
-                        </div>
-                      ))}
+                      {Object.entries((config.typography.letterSpacing as Record<string, string>) || {}).map(([spacing, value]) => {
+                        const { number, unit } = parseTypographyValue(value);
+                        return (
+                          <div key={spacing} className="flex items-center space-x-4">
+                            <span className="text-sm text-body w-16">{spacing}</span>
+                            <div className="flex items-center space-x-1">
+                              <button
+                                onClick={() => handleTypographyNumberChange('letterSpacing', spacing, number - 0.01)}
+                                className="w-6 h-6 flex items-center justify-center text-xs border border-medium rounded hover:bg-bg-secondary"
+                              >
+                                -
+                              </button>
+                              <Input
+                                size="sm"
+                                type="number"
+                                step="0.01"
+                                value={number}
+                                onChange={(e) => handleTypographyNumberChange('letterSpacing', spacing, parseFloat(e.target.value) || 0)}
+                                className="w-20 text-center"
+                              />
+                              <button
+                                onClick={() => handleTypographyNumberChange('letterSpacing', spacing, number + 0.01)}
+                                className="w-6 h-6 flex items-center justify-center text-xs border border-medium rounded hover:bg-bg-secondary"
+                              >
+                                +
+                              </button>
+                              <span className="text-xs text-body ml-1">{unit}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  
+                  {/* Test line height application */}
+                  <div className="mt-4 p-4 bg-gray-100 rounded">
+                    <h5 className="text-sm font-medium mb-2">Line Height Test:</h5>
+                    <div className="space-y-2">
+                      <div className="leading-none border p-2">
+                        <div>leading-none: This is a test of line height none</div>
+                        <div>This is a second line to show the line height difference</div>
+                        <div>This is a third line to make the difference more visible</div>
+                      </div>
+                      <div className="leading-tight border p-2">
+                        <div>leading-tight: This is a test of line height tight</div>
+                        <div>This is a second line to show the line height difference</div>
+                        <div>This is a third line to make the difference more visible</div>
+                      </div>
+                      <div className="leading-normal border p-2">
+                        <div>leading-normal: This is a test of line height normal</div>
+                        <div>This is a second line to show the line height difference</div>
+                        <div>This is a third line to make the difference more visible</div>
+                      </div>
+                      <div className="leading-relaxed border p-2">
+                        <div>leading-relaxed: This is a test of line height relaxed</div>
+                        <div>This is a second line to show the line height difference</div>
+                        <div>This is a third line to make the difference more visible</div>
+                      </div>
+                      <div className="leading-loose border p-2">
+                        <div>leading-loose: This is a test of line height loose</div>
+                        <div>This is a second line to show the line height difference</div>
+                        <div>This is a third line to make the difference more visible</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Test letter spacing application */}
+                  <div className="mt-4 p-4 bg-gray-100 rounded">
+                    <h5 className="text-sm font-medium mb-2">Letter Spacing Test:</h5>
+                    <div className="space-y-2">
+                      <div className="tracking-tighter border p-2">
+                        <div>tracking-tighter: This is a test of letter spacing tighter</div>
+                        <div>This shows how letters are spaced when tracking is tighter</div>
+                      </div>
+                      <div className="tracking-tight border p-2">
+                        <div>tracking-tight: This is a test of letter spacing tight</div>
+                        <div>This shows how letters are spaced when tracking is tight</div>
+                      </div>
+                      <div className="tracking-normal border p-2">
+                        <div>tracking-normal: This is a test of letter spacing normal</div>
+                        <div>This shows how letters are spaced when tracking is normal</div>
+                      </div>
+                      <div className="tracking-wide border p-2">
+                        <div>tracking-wide: This is a test of letter spacing wide</div>
+                        <div>This shows how letters are spaced when tracking is wide</div>
+                      </div>
+                      <div className="tracking-wider border p-2">
+                        <div>tracking-wider: This is a test of letter spacing wider</div>
+                        <div>This shows how letters are spaced when tracking is wider</div>
+                      </div>
                     </div>
                   </div>
                 </div>
+
+
               </CardBody>
             </Card>
           </>
@@ -967,6 +1300,8 @@ export default function DesignSystemPage() {
             </Card>
           </>
         )}
+
+
       </div>
               </AdminLayout>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { designSystemService } from '@/services/designSystemService';
 
 // Google Fonts that we support
@@ -40,7 +40,7 @@ const CSS_VAR_TO_FONT = {
 };
 
 export function DynamicFontLoader() {
-  const [loadedFont, setLoadedFont] = useState<string | null>(null);
+  const loadedFontRef = useRef<string | null>(null);
 
   useEffect(() => {
     const loadGoogleFont = (fontName: string) => {
@@ -48,7 +48,7 @@ export function DynamicFontLoader() {
         return;
       }
       
-      if (loadedFont === fontName) {
+      if (loadedFontRef.current === fontName) {
         return; // Already loaded
       }
 
@@ -71,7 +71,7 @@ export function DynamicFontLoader() {
       link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(' ', '+')}:wght@${fontConfig.weights.join(';')}&display=swap`;
       
       document.head.appendChild(link);
-      setLoadedFont(fontName);
+      loadedFontRef.current = fontName;
     };
 
     const updateFont = () => {
@@ -104,7 +104,7 @@ export function DynamicFontLoader() {
         
         if (actualMonoFontName && MONOSPACE_FONTS.includes(actualMonoFontName)) {
           // Only load if it's different from the currently loaded font
-          if (loadedFont !== actualMonoFontName) {
+          if (loadedFontRef.current !== actualMonoFontName) {
             loadGoogleFont(actualMonoFontName);
           }
         }
@@ -118,7 +118,7 @@ export function DynamicFontLoader() {
     const unsubscribe = designSystemService.subscribe(updateFont);
     
     return () => unsubscribe();
-  }, [loadedFont]);
+  }, []); // Empty dependency array - only run once
 
   return null;
 } 

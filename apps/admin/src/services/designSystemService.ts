@@ -64,12 +64,17 @@ class DesignSystemService {
 
   async loadActiveConfig(): Promise<DesignSystemConfig | null> {
     try {
+      console.log('Loading design system config...');
       const response = await fetch('/api/design-system/active/default');
+      console.log('Response status:', response.status);
       if (response.ok) {
         this.config = await response.json();
+        console.log('Config loaded:', this.config);
         this.applyConfig(this.config);
         this.notifySubscribers();
         return this.config;
+      } else {
+        console.error('API response not ok:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error loading design system config:', error);

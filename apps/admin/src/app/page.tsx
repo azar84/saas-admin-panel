@@ -95,9 +95,9 @@ export default function HomePage() {
             <CardBody>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-body">Customers</p>
-                  <p className="text-2xl font-semibold text-heading">320</p>
-                  <p className="text-xs text-placeholder">During 2 Month</p>
+                  <p className="text-sm font-medium text-body leading-tight tracking-wide">Customers</p>
+                  <p className="text-2xl font-semibold text-heading leading-normal tracking-normal">320</p>
+                  <p className="text-xs text-placeholder leading-relaxed tracking-tight">During 2 Month</p>
                 </div>
                 <div className="relative">
                   <div className="h-16 w-16 rounded-full bg-gradient-to-r from-warning to-secondary flex items-center justify-center">
@@ -113,9 +113,9 @@ export default function HomePage() {
             <CardBody>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-body">Orders</p>
-                  <p className="text-2xl font-semibold text-heading">500</p>
-                  <p className="text-xs text-placeholder">During 1 Month</p>
+                  <p className="text-sm font-medium text-body leading-tight tracking-wide">Orders</p>
+                  <p className="text-2xl font-semibold text-heading leading-normal tracking-normal">500</p>
+                  <p className="text-xs text-placeholder leading-relaxed tracking-tight">During 1 Month</p>
                 </div>
                 <div className="relative">
                   <div className="h-16 w-16 rounded-full bg-gradient-to-r from-secondary to-primary flex items-center justify-center">
@@ -131,9 +131,9 @@ export default function HomePage() {
             <CardBody>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-body">Cancel</p>
-                  <p className="text-2xl font-semibold text-heading">20</p>
-                  <p className="text-xs text-placeholder">During 3 Month</p>
+                  <p className="text-sm font-medium text-body leading-tight tracking-wide">Cancel</p>
+                  <p className="text-2xl font-semibold text-heading leading-normal tracking-normal">20</p>
+                  <p className="text-xs text-placeholder leading-relaxed tracking-tight">During 3 Month</p>
                 </div>
                 <div className="relative">
                   <div className="h-16 w-16 rounded-full bg-gradient-to-r from-warning to-secondary flex items-center justify-center">
@@ -149,9 +149,9 @@ export default function HomePage() {
             <CardBody>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-body">Today Best Sale</p>
-                  <p className="text-lg font-semibold text-heading">Diamond T-Shirt</p>
-                  <p className="text-xs text-placeholder">120 Sales</p>
+                  <p className="text-sm font-medium text-body leading-tight tracking-wide">Today Best Sale</p>
+                  <p className="text-lg font-semibold text-heading leading-normal tracking-normal">Diamond T-Shirt</p>
+                  <p className="text-xs text-placeholder leading-relaxed tracking-tight">120 Sales</p>
                 </div>
                 <div className="h-12 w-12 rounded-full bg-accent-1 flex items-center justify-center">
                   <svg className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">

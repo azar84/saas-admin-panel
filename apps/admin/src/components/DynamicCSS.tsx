@@ -167,15 +167,6 @@ export function DynamicCSS() {
     };
 
     updateCSSVariables();
-
-    // Subscribe to config changes
-    const unsubscribe = designSystemService.subscribe(() => {
-      updateCSSVariables();
-    });
-
-    return () => {
-      unsubscribe();
-    };
   }, []);
 
   return null;
